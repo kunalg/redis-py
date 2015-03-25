@@ -596,11 +596,10 @@ class Connection(object):
         elif isinstance(value, float):
             value = b(repr(value))
         elif not isinstance(value, basestring):
-            value = str(value)
+            value = cPickle.dumps(value) if (isinstance(value, object)) \
+                                                else str(value)  # noqa
         elif isinstance(value, unicode):
             value = value.encode(self.encoding, self.encoding_errors)
-        elif isinstance(value, object):
-            value = cPickle.dumps(value)
         return value
 
     def pack_command(self, *args):
