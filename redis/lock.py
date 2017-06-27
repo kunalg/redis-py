@@ -137,13 +137,18 @@ class Lock(object):
     def do_release(self, expected_token):
         name = self.name
 
-        def execute_release(pipe):
-            lock_value = pipe.get(name)
-            if lock_value != expected_token:
-                raise LockError("Cannot release a lock that's no longer owned")
-            pipe.delete(name)
+        lock_value = self.redis.get(name)
+        if lock_value != expected_token:
+            raise LockError("Cannot release a lock that's no longer owned")
+        self.redis.delete(name)
 
-        self.redis.transaction(execute_release, name)
+        # def execute_release(pipe):
+        #     lock_value = pipe.get(name)
+        #     if lock_value != expected_token:
+        #         raise LockError("Cannot release a lock that's no longer owned")
+        #     pipe.delete(name)
+
+        # self.redis.transaction(execute_release, name)
 
     def extend(self, additional_time):
         """
